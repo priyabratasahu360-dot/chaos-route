@@ -1,0 +1,15 @@
+{
+  "name": "chaos-route",
+  "version": "0.0.1",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "description": "Test your application by injecting intentional error to your route"
+}
