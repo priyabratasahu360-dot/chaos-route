@@ -1,15 +1,27 @@
 {
   "name": "chaos-route",
   "version": "0.0.1",
-  "main": "src/index.js",
+  "main": "dist/index.js",
+  "type": "module",
+  "types": "dist/index.d.ts",
   "exports": {
-    ".": "./src/index.js"
+    ".": "./dist/index.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch"
   },
-  "keywords": [],
+  "keywords": [
+    "chaos-creator",
+    "route",
+    "error-testing"
+  ],
   "author": "",
   "license": "MIT",
-  "description": "Test your application by injecting intentional error to your route"
+  "description": "Test your application by injecting intentional error to your route",
+  "devDependencies": {
+    "@types/node": "^22.20.2",
+    "typescript": "^7.0.2"
+  }
 }
