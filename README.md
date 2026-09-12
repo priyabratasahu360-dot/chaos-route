@@ -468,7 +468,6 @@ A good practice is to use Chaos Route only in development/test environments.
 Planned failure types and features include:
 
 * [ ] Timeout
-* [ ] Random/probability-based failures
 * [ ] Connection errors
 * [ ] Rate limiting (`429`)
 * [ ] Custom responses

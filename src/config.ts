@@ -3,12 +3,14 @@ import path from "node:path";
 
 // Defines what failure options look like
 export interface ChaosFailure {
-  type: "http_error" | "latency" | "timeout";
+  type: "http_error" | "latency" | "timeout" | "connection_error" | "rate_limit";
 
   status?: number;
   message?: string;
   latencyMs?: number;
   timeoutMs?: number;
+  limit?: number;
+  windowMs?: number;
 }
 
 export interface ChaosRouteConfig {

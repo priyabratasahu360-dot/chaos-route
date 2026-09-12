@@ -25,7 +25,9 @@
   "license": "MIT",
   "description": "Test your application by injecting intentional error to your route",
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^22.20.2",
+    "express": "^5.2.1",
     "typescript": "^7.0.2"
   }
 }

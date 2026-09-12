@@ -1,21 +1,11 @@
+import type {Request, Response, NextFunction} from "express";
+
 import { loadConfig } from "./config.js";
 import { httpError } from "./failures/http-error.js";
 import { latency } from "./failures/latency.js";
-
-type Request = {
-  path: string;
-  method: string;
-  headers: Record<string, string | string[] | undefined>;
-  body?: unknown;
-};
-
-type Response = {
-  status(code: number): Response;
-  json(body: unknown): Response;
-  send(body: unknown): Response;
-};
-
-type NextFunction = () => void;
+import { timeout } from "./failures/timeout.js";
+import { connectionError } from "./failures/connection-error.js";
+import { rateLimit } from "./failures/rate-limit.js";
 
 export function chaos() {
   const config = loadConfig();
@@ -48,6 +38,27 @@ export function chaos() {
     // Add latency, then allow the real Express route to continue
     if (failure.type === "latency") {
       await latency(failure);
+      return next();
+    }
+
+    //simulate timeout error
+    if(failure.type === "timeout"){
+      return await timeout(req, failure);
+    }
+
+    //simulate connection error
+    if(failure.type === "connection_error"){
+      return connectionError(req);
+    }
+
+    //simulate rate limit
+    if(failure.type === "rate_limit"){
+      const result = rateLimit(req, res, failure);
+
+      if(result){
+        return result;
+      }
+
       return next();
     }
 
