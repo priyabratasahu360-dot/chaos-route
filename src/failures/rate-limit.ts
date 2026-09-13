@@ -31,7 +31,7 @@ export function rateLimit(req: Request, res: Response, failure: ChaosFailure){
     if(existing.count >= limit){
         return res.status(429)
                   .json({
-                    error: failure.message,
+                    error: failure.message ?? "Too many request",
                     chaos: true
                   })
     }

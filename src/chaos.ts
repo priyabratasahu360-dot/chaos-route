@@ -6,6 +6,8 @@ import { latency } from "./failures/latency.js";
 import { timeout } from "./failures/timeout.js";
 import { connectionError } from "./failures/connection-error.js";
 import { rateLimit } from "./failures/rate-limit.js";
+import { manipulateRequest } from "./failures/request-manipulation.js";
+import { manipulateResponse } from "./failures/response-manipulation.js";
 
 export function chaos() {
   const config = loadConfig();
@@ -21,6 +23,16 @@ export function chaos() {
     // No chaos configuration for this route
     if (!chaosConfig) {
       return next();
+    }
+
+    //manipulate request
+    if(chaosConfig.request){
+      manipulateRequest(req, chaosConfig.request)
+    }
+
+    //manipulate response
+    if(chaosConfig.response){
+      manipulateResponse(res, chaosConfig.response)
     }
 
     const failure = chaosConfig.failure;

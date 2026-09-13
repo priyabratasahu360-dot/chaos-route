@@ -10,6 +10,67 @@ It lets you configure failures for specific routes without modifying your contro
 For example, you can make `/api/login` timeout, return a `500` error, or introduce artificial latency simply by changing `chaos.config.json`.
 
 ---
+## Table of Contents
+
+* [Installation](#installation)
+
+* [Quick Start](#quick-start)
+
+  * [1. Add Chaos Route to your Express application](#1-add-chaos-route-to-your-express-application)
+
+  * [2. Create `chaos.config.json`](#2-create-chaosconfigjson)
+
+* [How It Works](#how-it-works)
+
+* [Configuration](#configuration)
+
+  * [HTTP Error](#http-error)
+
+  * [Latency](#latency)
+
+  * [Timeout](#timeout)
+
+  * [Connection Error](#connection-error)
+
+  * [Rate Limit](#rate-limit)
+
+* [Request Manipulation](#request-manipulation)
+
+  * [Add Request Fields](#add-request-fields)
+
+  * [Modify Request Fields](#modify-request-fields)
+
+  * [Remove Request Fields](#remove-request-fields)
+
+* [Response Manipulation](#response-manipulation)
+
+  * [Add Response Fields](#add-response-fields)
+
+  * [Modify Response Fields](#modify-response-fields)
+
+  * [Remove Response Fields](#remove-response-fields)
+
+* [Multiple Routes](#multiple-routes)
+
+* [Routes Without Chaos](#routes-without-chaos)
+
+* [Disabling a Failure](#disabling-a-failure)
+
+* [Configuration Reference](#configuration-reference)
+
+* [Example Express Application](#example-express-application)
+
+* [Version History](#version-history)
+
+* [Important](#important)
+
+* [Roadmap](#roadmap)
+
+* [Contributing](#contributing)
+
+* [License](#license)
+
+---
 
 ## Why Chaos Route?
 
@@ -275,7 +336,199 @@ Response
 | Option      | Type        | Default | Description           |
 | ----------- | ----------- | ------- | --------------------- |
 | `type`      | `"latency"` | —       | Failure type          |
-| `latencyMs` | `number`    | `1000`  | Delay in milliseconds |
+| `latencyMs` | `number`    | `3000`  | Delay in milliseconds |
+
+---
+
+## Timeout
+
+Simulate a request that hangs for a specified duration and then terminates the connection.
+
+```json
+{
+  "routes": {
+    "/api/users": {
+      "failure": {
+        "type": "timeout",
+        "timeoutMs": 3000
+      }
+    }
+  }
+}
+```
+
+A request to `/api/users` will hang for 3 seconds and then the connection will be terminated.
+
+### Options
+
+| Option      | Type        | Default | Description                              |
+| ----------- | ----------- | ------- | ---------------------------------------- |
+| `type`      | `"timeout"` | —       | Failure type                             |
+| `timeoutMs` | `number`    | `5000`  | Time before the connection is terminated |
+
+---
+
+## Connection Error
+
+Immediately terminate the connection to simulate a connection failure.
+
+```json
+{
+  "routes": {
+    "/api/users": {
+      "failure": {
+        "type": "connection_error"
+      }
+    }
+  }
+}
+````
+
+A request to `/api/users` will have its connection terminated without receiving a response.
+
+### Options
+
+| Option | Type                 | Default | Description  |
+| ------ | -------------------- | ------- | ------------ |
+| `type` | `"connection_error"` | —       | Failure type |
+
+---
+
+## Rate Limit
+
+Limit requests to an endpoint and return `429` when the limit is exceeded.
+
+```json
+{
+  "routes": {
+    "/api/login": {
+      "failure": {
+        "type": "rate_limit",
+        "limit": 5,
+        "windowMs": 60000
+      }
+    }
+  }
+}
+````
+
+After 5 requests within 60 seconds, further requests will receive a `429 Too Many Requests` response.
+
+### Options
+
+| Option     | Type           | Default | Description                 |
+| ---------- | -------------- | ------- | --------------------------- |
+| `type`     | `"rate_limit"` | —       | Failure type                |
+| `limit`    | `number`       | `10`     | Maximum requests allowed    |
+| `windowMs` | `number`       | `60000` | Time window in milliseconds |
+
+---
+
+## Request Manipulation
+
+Modify, add, or remove request fields before they reach your controller.
+
+```json
+{
+  "routes": {
+    "/api/profile": {
+      "request": {
+        "remove": ["email"],
+        "set": {
+          "age": 99
+        },
+        "add": {
+          "chaosTest": true
+        }
+      }
+    }
+  }
+}
+````
+
+### Add Request Fields
+
+Use `add` to add fields to the request.
+
+```json
+"add": {
+  "chaosTest": true
+}
+```
+
+### Modify Request Fields
+
+Use `set` to modify existing request fields.
+
+```json
+"set": {
+  "age": 99
+}
+```
+
+### Remove Request Fields
+
+Use `remove` to remove fields from the request.
+
+```json
+"remove": ["email"]
+```
+
+The modified request is then passed to your existing controller.
+
+---
+
+## Response Manipulation
+
+Modify, add, or remove response fields before they reach the client.
+
+```json
+{
+  "routes": {
+    "/api/profile": {
+      "response": {
+        "remove": ["email"],
+        "set": {
+          "age": 99
+        },
+        "add": {
+          "chaosTest": true
+        }
+      }
+    }
+  }
+}
+````
+
+### Add Response Fields
+
+Use `add` to add fields to the response.
+
+```json
+"add": {
+  "chaosTest": true
+}
+```
+
+### Modify Response Fields
+
+Use `set` to modify existing response fields.
+
+```json
+"set": {
+  "age": 99
+}
+```
+
+### Remove Response Fields
+
+Use `remove` to remove fields from the response.
+
+```json
+"remove": ["email"]
+```
+
+The modified response is then sent to the client.
 
 ---
 
@@ -391,6 +644,17 @@ Current supported failure types:
 | ------------ | ----------------------------------- |
 | `http_error` | Return a configured HTTP error      |
 | `latency`    | Delay the request before continuing |
+| `connection_error`    | Destoy the connection |
+| `timeout`    | hangs req for specific period then terminates connection |
+| `rate_limit`    | Limit requests to an endpoint and return 429 when the limit is exceeded. |
+
+Supported manipulation:
+
+| type      | Description                         |
+| ------------ | ----------------------------------- |
+| `request` | Modify, add, or remove request fields before they reach your controller. |
+| `response`    | Modify, add, or remove request fields before they reach to client. |
+
 
 More failure types are planned as Chaos Route evolves.
 
@@ -453,6 +717,33 @@ You can test how your application handles both failures without changing either 
 
 ---
 
+## Version History
+
+### [![Version](https://img.shields.io/badge/version-0.0.3-blue)](https://www.npmjs.com/package/@priyabrat/chaos-route) - Current
+
+**Request/Response Manipulation**
+
+Add request/response fields
+Modify request/response fields
+Remove request/response fields
+
+### [![Version](https://img.shields.io/badge/version-0.0.2-blue)](https://www.npmjs.com/package/@priyabrat/chaos-route) 
+
+**Failure Injection**
+
+* [x] Timeout
+* [x] Connection errors
+* [x] Rate limiting (`429`)
+
+---
+
+### [![Version](https://img.shields.io/badge/version-0.0.1-blue)](https://www.npmjs.com/package/@priyabrat/chaos-route) — Initial Release
+
+* [x] HTTP errors
+* [x] Latency injection
+
+---
+
 # Important
 
 Chaos Route is intended primarily for **development and testing**.
@@ -467,11 +758,11 @@ A good practice is to use Chaos Route only in development/test environments.
 
 Planned failure types and features include:
 
-* [ ] Timeout
-* [ ] Connection errors
-* [ ] Rate limiting (`429`)
+* [x] Timeout
+* [x] Connection errors
+* [x] Rate limiting (`429`)
 * [ ] Custom responses
-* [ ] Request/response manipulation
+* [x] Request/response manipulation
 * [ ] Better configuration validation
 * [ ] Environment-based configuration
 * [ ] More fault-injection strategies

@@ -13,8 +13,21 @@ export interface ChaosFailure {
   windowMs?: number;
 }
 
+export interface RequestManipulation{
+  remove?: string[];
+  set?: Record<string, unknown>;
+  add?: Record<string, unknown>;
+}
+export interface ResponseManipulation{
+  remove?: string[];
+  set?: Record<string, unknown>;
+  add?: Record<string, unknown>;
+}
+
 export interface ChaosRouteConfig {
   failure?: ChaosFailure;
+  request?: RequestManipulation;
+  response?: ResponseManipulation;
 }
 
 export interface ChaosConfig {
