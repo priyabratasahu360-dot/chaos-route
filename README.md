@@ -624,8 +624,6 @@ Remove the `failure` configuration from the route:
 }
 ```
 
-The request will pass through normally.
-
 You can also remove the route completely:
 
 ```json
@@ -634,6 +632,14 @@ You can also remove the route completely:
 }
 ```
 
+OR
+
+Add this inside your .env
+```.env
+CHAOS="false"
+```
+
+  The request will pass through normally.
 ---
 
 # Configuration Reference
@@ -763,8 +769,8 @@ Planned failure types and features include:
 * [x] Rate limiting (`429`)
 * [ ] Custom responses
 * [x] Request/response manipulation
-* [ ] Better configuration validation
-* [ ] Environment-based configuration
+* [x] Better configuration validation
+* [x] Environment-based configuration
 * [ ] More fault-injection strategies
 
 ---
